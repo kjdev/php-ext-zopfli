@@ -1,5 +1,7 @@
 # Zopfli Extension for PHP #
 
+[![Build Status](https://secure.travis-ci.org/kjdev/php-ext-zopfli.png?branch=master)](http://travis-ci.org/kjdev/php-ext-zopfli)
+
 This extension allows Zopfli compression.
 
 Documentation for Zopfli can be found at [» https://code.google.com/p/zopfli/](https://code.google.com/p/zopfli/).
