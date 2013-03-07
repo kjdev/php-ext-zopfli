@@ -1,7 +1,10 @@
 --TEST--
 zopfli_encode()/zopfli_dencode() compatible with gzencode()/gzdencode()
 --SKIPIF--
-<?php if (!extension_loaded("zlib")) print "skip"; ?>
+<?php
+if (!extension_loaded("zlib")) print "skip";
+if (!function_exists("gzdecode")) print "skip";
+?>
 --FILE--
 <?php
 if (!extension_loaded('zopfli')) {
