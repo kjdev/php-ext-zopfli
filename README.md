@@ -61,7 +61,7 @@ The encoded string, or FALSE if an error occurred.
 
 ### Description ###
 
-string **zopfli\_compress** ( string _$dat_a [, int _$iteration_ = 15 ] )
+string **zopfli\_compress** ( string _$data_ [, int _$iteration_ = 15 ] )
 
 This function compress the given string using the ZLIB data format.
 
