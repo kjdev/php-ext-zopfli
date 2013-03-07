@@ -195,3 +195,8 @@ The original uncompressed data or FALSE on error.
 
     zopfli_inflate($data);
     //gzinflate($data);
+
+## Related ##
+
+* [code coverage report](http://gcov.at-ninja.jp/php-ext-zopfli/)
+* [api document](http://api.at-ninja.jp/php-ext-zopfli/)
