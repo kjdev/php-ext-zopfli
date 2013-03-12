@@ -66,13 +66,13 @@ Strings are equal
 1806 3547
 Strings are equal
 *** Tesging zopfli_encode()/gzuncompress() ***
-1749 3547
+1750 3547
 Strings are equal
 *** Tesging zopfli_encode()/gzdeflate() ***
 1744 3547
 Strings are equal
 *** Tesging zopfli_encode(): ZOPFLI_ZLIB ***
-1749 3547
+1750 3547
 Strings are equal: gzuncompress
 Strings are equal: zopfli_uncompress
 Strings are equal: zopfli_decode(ZOPFLI_ZLIB)
