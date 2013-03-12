@@ -115,21 +115,21 @@ php_zopfli_encode(unsigned char *in, size_t in_size, int iteration,
                   unsigned int out_type, unsigned char **out, size_t *out_size
                   TSRMLS_DC)
 {
-    Options options;
+    ZopfliOptions options;
 
-    InitOptions(&options);
+    ZopfliInitOptions(&options);
     options.numiterations = iteration;
 
     *out = NULL;
     *out_size = 0;
 
     if (out_type == ZOPFLI_TYPE_GZIP) {
-        GzipCompress(&options, in, in_size, out, out_size);
+        ZopfliGzipCompress(&options, in, in_size, out, out_size);
     } else if (out_type == ZOPFLI_TYPE_ZLIB) {
-        ZlibCompress(&options, in, in_size, out, out_size);
+        ZopfliZlibCompress(&options, in, in_size, out, out_size);
     } else if (out_type == ZOPFLI_TYPE_DEFLATE) {
         unsigned char bp = 0;
-        Deflate(&options, 2, 1, in, in_size, &bp, out, out_size);
+        ZopfliDeflate(&options, 2, 1, in, in_size, &bp, out, out_size);
     } else {
         return FAILURE;
     }
