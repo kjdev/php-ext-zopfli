@@ -9,10 +9,16 @@
 #include "php_verdep.h"
 #include "php_zopfli.h"
 
+#include <zlib.h>
+
 /* zopfli */
 #include "zopfli/deflate.h"
 #include "zopfli/gzip_container.h"
 #include "zopfli/zlib_container.h"
+
+#define ZOPFLI_PNG_SIGNATURE_SIZE 8
+#define ZOPFLI_PNG_IHDR_SIZE 25
+#define ZOPFLI_PNG_IEND_SIZE 12
 
 static ZEND_FUNCTION(zopfli_encode);
 static ZEND_FUNCTION(zopfli_compress);
@@ -20,6 +26,8 @@ static ZEND_FUNCTION(zopfli_deflate);
 static ZEND_FUNCTION(zopfli_decode);
 static ZEND_FUNCTION(zopfli_uncompress);
 static ZEND_FUNCTION(zopfli_inflate);
+
+static ZEND_FUNCTION(zopfli_png_recompress);
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_zopfli_encode, 0, 0, 1)
     ZEND_ARG_INFO(0, data)
@@ -55,6 +63,12 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_zopfli_inflate, 0, 0, 1)
     ZEND_ARG_INFO(0, max)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_zopfli_png_recompress, 0, 0, 1)
+    ZEND_ARG_INFO(0, data)
+    ZEND_ARG_INFO(0, iteration)
+    ZEND_ARG_INFO(0, max)
+ZEND_END_ARG_INFO()
+
 static zend_function_entry zopfli_functions[] = {
     ZEND_FE(zopfli_encode, arginfo_zopfli_encode)
     ZEND_FE(zopfli_compress, arginfo_zopfli_compress)
@@ -62,6 +76,7 @@ static zend_function_entry zopfli_functions[] = {
     ZEND_FE(zopfli_decode, arginfo_zopfli_decode)
     ZEND_FE(zopfli_uncompress, arginfo_zopfli_uncompress)
     ZEND_FE(zopfli_inflate, arginfo_zopfli_inflate)
+    ZEND_FE(zopfli_png_recompress, arginfo_zopfli_png_recompress)
     ZEND_FE_END
 };
 
@@ -137,6 +152,184 @@ php_zopfli_encode(unsigned char *in, size_t in_size, int iteration,
     return SUCCESS;
 }
 
+static inline int
+php_zopfli_is_invalid_signature(unsigned char *in)
+{
+    if (strncmp((char *)in, "\x89\x50\x4e\x47\xd\xa\x1a\xa", ZOPFLI_PNG_SIGNATURE_SIZE) != 0) {
+        return SUCCESS;
+    }
+    return FAILURE;
+}
+
+static inline uint32_t
+php_zopfli_read_uint32(unsigned char *in, uint32_t *ipos)
+{
+    int endian_little = 1;
+    uint32_t result;
+    if (*((uint8_t *)&endian_little) == 1) {
+        result = 
+            (in[*ipos]     << 24) | (in[(*ipos)+1] << 16) |
+            (in[(*ipos)+2] << 8)  | (in[(*ipos)+3]);
+    } else {
+        result = *((uint32_t *)&in[*ipos]);
+    }
+    *ipos += 4;
+    return result;
+}
+
+static inline void
+php_zopfli_write_uint32(unsigned char *out, uint32_t *opos, uint32_t data)
+{
+    int endian_little = 1;
+    uint32_t tmp;
+    if (*((uint8_t *)&endian_little) == 1) {
+        out[*opos]     = data >> 24;
+        out[(*opos+1)] = data >> 16;
+        out[(*opos+2)] = data >> 8;
+        out[(*opos+3)] = data;
+    } else {
+        out[*opos] = data;
+    }
+    *opos += 4;
+}
+
+static inline int
+php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
+                          unsigned char **out, size_t *out_size
+                          TSRMLS_DC)
+{
+    ZopfliOptions options;
+    uint32_t ipos;
+    uint32_t opos;
+    uint32_t chunk_len;
+    uint32_t width;
+    uint32_t height;
+    uint8_t  depth;
+    uint8_t  ctype;
+    uint8_t  compress;
+    uint8_t  filter;
+    uint8_t  interlace;
+    uLongf   idat_pos;
+    unsigned char *idat_buf;
+    unsigned char *inflate_buf = NULL;
+    unsigned char *compressed_buf = NULL;
+    uLongf inflate_buf_size;
+    size_t compressed_buf_size;
+    uLong crc;
+    int bit_depth;
+    int alpha;
+    int result;
+
+    ZopfliInitOptions(&options);
+    options.numiterations = iteration;
+
+    ipos      = 0;
+    opos      = 0;
+    idat_pos  = 0;
+    *out      = NULL;
+    *out_size = 0;
+    inflate_buf_size = 0;
+    compressed_buf_size = 0;
+
+    if (php_zopfli_is_invalid_signature(in) == SUCCESS) {
+        return FAILURE;
+    }
+    idat_buf       = emalloc(in_size);
+    inflate_buf    = NULL;
+    compressed_buf = NULL;
+    *out           = emalloc(in_size * 2);
+    memcpy(*out + opos, &in[ipos], ZOPFLI_PNG_SIGNATURE_SIZE);
+    ipos += ZOPFLI_PNG_SIGNATURE_SIZE;
+    opos += ZOPFLI_PNG_SIGNATURE_SIZE;
+
+    do {
+        chunk_len = php_zopfli_read_uint32(in, &ipos);
+        if (strncmp((char *)&in[ipos], "IHDR", sizeof("IHDR") - 1) == 0) {
+            // copy IHDR chunk
+            memcpy(*out + opos, &in[ipos - 4], ZOPFLI_PNG_IHDR_SIZE);
+
+            // skip chunk type
+            ipos += 4;
+
+            width     = php_zopfli_read_uint32(in, &ipos);
+            height    = php_zopfli_read_uint32(in, &ipos);
+            depth     = in[ipos++];
+            ctype     = in[ipos++];
+            compress  = in[ipos++];
+            filter    = in[ipos++];
+            interlace = in[ipos++];
+
+            bit_depth        = depth == 16 ? 2 : 1;
+            alpha            = (ctype & 0x4) == 0 ? 3 : 4;
+            inflate_buf_size = width * height * bit_depth * alpha + height;
+
+            ipos += 4; // skip crc
+            opos += ZOPFLI_PNG_IHDR_SIZE;
+        } else if (strncmp((char *)&in[ipos], "IDAT", sizeof("IDAT") - 1) == 0) {
+            // skip chunk type
+            ipos += 4;
+
+            memcpy(&idat_buf[idat_pos], &in[ipos], chunk_len);
+
+            // skip crc
+            ipos += chunk_len + 4;
+
+            idat_pos += chunk_len;
+        } else if (strncmp((char *)&in[ipos], "IEND", sizeof("IEND") - 1) == 0) {
+            inflate_buf = emalloc(inflate_buf_size);
+            if ((result = uncompress(inflate_buf, &inflate_buf_size, idat_buf, idat_pos)) != Z_OK) {
+                if (idat_buf != NULL) {
+                    efree(idat_buf);
+                }
+                if (inflate_buf != NULL) {
+                    efree(inflate_buf);
+                }
+                return FAILURE;
+            }
+
+            // recompress
+            compressed_buf = emalloc(inflate_buf_size * 2);
+            ZopfliZlibCompress(&options, inflate_buf, inflate_buf_size, &compressed_buf, &compressed_buf_size);
+  
+            // copy IDAT chunk length
+            php_zopfli_write_uint32(*out, &opos, (uint32_t)compressed_buf_size);
+
+            // copy IDAT chunk type
+            strncpy(((char *)*out + opos), "IDAT", sizeof("IDAT") - 1);
+            opos += 4;
+
+            // copy idat chunk data
+            memcpy(*out + opos, compressed_buf, compressed_buf_size);
+            opos += compressed_buf_size;
+
+            // copy idat chunk crc
+            crc = crc32(0L, (Bytef *)"IDAT", sizeof("IDAT") - 1);
+            crc = crc32(crc, compressed_buf, compressed_buf_size);
+            php_zopfli_write_uint32(*out, &opos, (uint32_t)crc);
+
+            // copy IEND chunk
+            memcpy(*out + opos, &in[ipos - 4], chunk_len + 12);
+            ipos += chunk_len + 8;
+            opos += chunk_len + 12;
+        } else {
+            memcpy(*out + opos, &in[ipos - 4], chunk_len + 12);
+            ipos += chunk_len + 8;
+            opos += chunk_len + 12;
+        }
+    } while(ipos < in_size);
+
+    if (idat_buf != NULL) {
+        efree(idat_buf);
+    }
+    if (inflate_buf != NULL) {
+        efree(inflate_buf);
+    }
+
+    *out_size = opos;
+
+    return SUCCESS;
+}
+
 #define PHP_ZOPFLI_ENCODE_FUNC(_name, _type) \
 static ZEND_FUNCTION(_name) \
 { \
@@ -174,6 +367,27 @@ PHP_ZOPFLI_ENCODE_FUNC(zopfli_compress, ZOPFLI_TYPE_ZLIB);
 
 PHP_ZOPFLI_ENCODE_FUNC(zopfli_deflate, ZOPFLI_TYPE_DEFLATE);
 
+static ZEND_FUNCTION(zopfli_png_recompress)
+{
+    long max_size = 0;
+    long iteration = 15;
+    char *in, *out = NULL;
+    int in_size;
+    size_t out_size = 0;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &in, &in_size, &iteration, &max_size) == FAILURE) {
+        return;
+    }
+    if (iteration <= 0) {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "compression iterations (%ld) must be greater than 0", iteration);
+        RETURN_FALSE;
+    }
+    if (php_zopfli_png_recompress((unsigned char *)in, in_size, iteration, (unsigned char **)&out, &out_size TSRMLS_CC) != SUCCESS) {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid PNG Image");
+        RETURN_FALSE;
+    }
+    RETVAL_STRINGL(out, out_size, 1);
+    efree(out);    
+}
 
 #ifdef HAVE_ZLIB_H
 

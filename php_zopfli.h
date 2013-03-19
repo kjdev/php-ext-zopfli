@@ -29,4 +29,10 @@ extern zend_module_entry zopfli_module_entry;
 #    define ZOPFLI_G(v) (zopfli_globals.v)
 #endif
 
+#if defined(HAVE_INTTYPES_H)
+#include <inttypes.h>
+#elif defined(HAVE_STDINT_H)
+#include <stdint.h>
+#endif
+
 #endif  /* PHP_ZOPFLI_H */
