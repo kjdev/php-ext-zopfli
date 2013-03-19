@@ -9,16 +9,10 @@
 #include "php_verdep.h"
 #include "php_zopfli.h"
 
-#include <zlib.h>
-
 /* zopfli */
 #include "zopfli/deflate.h"
 #include "zopfli/gzip_container.h"
 #include "zopfli/zlib_container.h"
-
-#define ZOPFLI_PNG_SIGNATURE_SIZE 8
-#define ZOPFLI_PNG_IHDR_SIZE 25
-#define ZOPFLI_PNG_IEND_SIZE 12
 
 static ZEND_FUNCTION(zopfli_encode);
 static ZEND_FUNCTION(zopfli_compress);
@@ -153,47 +147,6 @@ php_zopfli_encode(unsigned char *in, size_t in_size, int iteration,
 }
 
 static inline int
-php_zopfli_is_invalid_signature(unsigned char *in)
-{
-    if (strncmp((char *)in, "\x89\x50\x4e\x47\xd\xa\x1a\xa", ZOPFLI_PNG_SIGNATURE_SIZE) != 0) {
-        return SUCCESS;
-    }
-    return FAILURE;
-}
-
-static inline uint32_t
-php_zopfli_read_uint32(unsigned char *in, uint32_t *ipos)
-{
-    int endian_little = 1;
-    uint32_t result;
-    if (*((uint8_t *)&endian_little) == 1) {
-        result = 
-            (in[*ipos]     << 24) | (in[(*ipos)+1] << 16) |
-            (in[(*ipos)+2] << 8)  | (in[(*ipos)+3]);
-    } else {
-        result = *((uint32_t *)&in[*ipos]);
-    }
-    *ipos += 4;
-    return result;
-}
-
-static inline void
-php_zopfli_write_uint32(unsigned char *out, uint32_t *opos, uint32_t data)
-{
-    int endian_little = 1;
-    uint32_t tmp;
-    if (*((uint8_t *)&endian_little) == 1) {
-        out[*opos]     = data >> 24;
-        out[(*opos+1)] = data >> 16;
-        out[(*opos+2)] = data >> 8;
-        out[(*opos+3)] = data;
-    } else {
-        out[*opos] = data;
-    }
-    *opos += 4;
-}
-
-static inline int
 php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
                           unsigned char **out, size_t *out_size
                           TSRMLS_DC)
@@ -202,13 +155,6 @@ php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
     uint32_t ipos;
     uint32_t opos;
     uint32_t chunk_len;
-    uint32_t width;
-    uint32_t height;
-    uint8_t  depth;
-    uint8_t  ctype;
-    uint8_t  compress;
-    uint8_t  filter;
-    uint8_t  interlace;
     uLongf   idat_pos;
     unsigned char *idat_buf;
     unsigned char *inflate_buf = NULL;
@@ -216,8 +162,6 @@ php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
     uLongf inflate_buf_size;
     size_t compressed_buf_size;
     uLong crc;
-    int bit_depth;
-    int alpha;
     int result;
 
     ZopfliInitOptions(&options);
@@ -251,17 +195,7 @@ php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
             // skip chunk type
             ipos += 4;
 
-            width     = php_zopfli_read_uint32(in, &ipos);
-            height    = php_zopfli_read_uint32(in, &ipos);
-            depth     = in[ipos++];
-            ctype     = in[ipos++];
-            compress  = in[ipos++];
-            filter    = in[ipos++];
-            interlace = in[ipos++];
-
-            bit_depth        = depth == 16 ? 2 : 1;
-            alpha            = (ctype & 0x4) == 0 ? 3 : 4;
-            inflate_buf_size = width * height * bit_depth * alpha + height;
+            inflate_buf_size = php_zopfli_calc_inflate_buf_size(in, &ipos);
 
             ipos += 4; // skip crc
             opos += ZOPFLI_PNG_IHDR_SIZE;

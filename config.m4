@@ -52,6 +52,6 @@ if test "$PHP_ZOPFLI" != "no"; then
         PHP_DEF_HAVE(ZLIB_H)
     fi
 
-    PHP_NEW_EXTENSION(zopfli, zopfli.c zopfli/blocksplitter.c zopfli/hash.c zopfli/tree.c zopfli/cache.c zopfli/katajainen.c zopfli/util.c zopfli/deflate.c zopfli/lz77.c zopfli/zlib_container.c zopfli/gzip_container.c zopfli/squeeze.c, $ext_shared)
+    PHP_NEW_EXTENSION(zopfli, zopfli.c png.c zopfli/blocksplitter.c zopfli/hash.c zopfli/tree.c zopfli/cache.c zopfli/katajainen.c zopfli/util.c zopfli/deflate.c zopfli/lz77.c zopfli/zlib_container.c zopfli/gzip_container.c zopfli/squeeze.c, $ext_shared)
 
 fi
