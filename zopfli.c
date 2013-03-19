@@ -60,7 +60,6 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_zopfli_png_recompress, 0, 0, 1)
     ZEND_ARG_INFO(0, data)
     ZEND_ARG_INFO(0, iteration)
-    ZEND_ARG_INFO(0, max)
 ZEND_END_ARG_INFO()
 
 static zend_function_entry zopfli_functions[] = {
@@ -303,12 +302,11 @@ PHP_ZOPFLI_ENCODE_FUNC(zopfli_deflate, ZOPFLI_TYPE_DEFLATE);
 
 static ZEND_FUNCTION(zopfli_png_recompress)
 {
-    long max_size = 0;
     long iteration = 15;
     char *in, *out = NULL;
     int in_size;
     size_t out_size = 0;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &in, &in_size, &iteration, &max_size) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &in, &in_size, &iteration) == FAILURE) {
         return;
     }
     if (iteration <= 0) {
