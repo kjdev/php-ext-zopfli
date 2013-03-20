@@ -27,6 +27,7 @@ Documentation for Zopfli can be found at [» https://code.google.com/p/zopfli/](
 * zopfli\_decode — Decodes a gzip compressed string
 * zopfli\_uncompress — Uncompress a compressed string
 * zopfli\_inflate — Inflate a deflated string
+* zopfli\_png_recompress — Recompress IDAT chunks in a PNG Image
 
 ## zopfli\_encode — Create a gzip compressed string ##
 
@@ -177,6 +178,29 @@ same as gzinfrate().
 ### Return Values ###
 
 The original uncompressed data or FALSE on error.
+
+
+## zopfli\_png_recompress — Recommress IDAT chunks in PNG Image ##
+
+### Description ###
+
+string **zopfli\_png_recompress** ( string _$data_ [, int _$iteration_ = 0 ] )
+
+This function recompresses IDAT chunks in a PNG Image.
+
+### Parameters ###
+
+* _data_
+
+  The PNG Image
+
+* _iteration_
+
+  The iteration of compression. Specify a value greater than 0.
+
+### Return Values ###
+
+The recompressed PNG Image or FALSE on error.
 
 
 ## Examples ##
