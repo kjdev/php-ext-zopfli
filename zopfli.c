@@ -232,7 +232,7 @@ php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
             }
 
             // recompress
-            compressed_buf = emalloc(inflate_buf_size * 2);
+            compressed_buf = malloc(inflate_buf_size * 2);
             ZopfliZlibCompress(&options, inflate_buf, inflate_buf_size, &compressed_buf, &compressed_buf_size);
 
             // copy IDAT chunk length
