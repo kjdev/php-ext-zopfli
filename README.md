@@ -180,11 +180,11 @@ same as gzinfrate().
 The original uncompressed data or FALSE on error.
 
 
-## zopfli\_png_recompress — Recommress IDAT chunks in PNG Image ##
+## zopfli\_png\_recompress — Recommress IDAT chunks in PNG Image ##
 
 ### Description ###
 
-string **zopfli\_png_recompress** ( string _$data_ [, int _$iteration_ = 0 ] )
+string **zopfli\_png\_recompress** ( string _$data_ [, int _$iteration_ = 15 ] )
 
 This function recompresses IDAT chunks in a PNG Image.
 
@@ -219,6 +219,10 @@ The recompressed PNG Image or FALSE on error.
 
     zopfli_inflate($data);
     //gzinflate($data);
+
+    $data = file_get_contents('original.png');
+    $recompress = zopfli_png_recompress($data);
+    file_put_contents('recompress.png', $recompress);
 
 ## Related ##
 

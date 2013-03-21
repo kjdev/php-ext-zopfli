@@ -9,6 +9,10 @@
 #include "php_verdep.h"
 #include "php_zopfli.h"
 
+#ifdef HAVE_ZLIB_H
+#include "png.h"
+#endif
+
 /* zopfli */
 #include "zopfli/deflate.h"
 #include "zopfli/gzip_container.h"
@@ -94,6 +98,11 @@ ZEND_MINFO_FUNCTION(zopfli)
     php_info_print_table_start();
     php_info_print_table_row(2, "Zopfli support", "enabled");
     php_info_print_table_row(2, "Extension Version", ZOPFLI_EXT_VERSION);
+#ifdef HAVE_ZLIB_H
+    php_info_print_table_row(2, "Zopfli png recompress", "supported");
+#else
+    php_info_print_table_row(2, "Zopfli png recompress", "not supported");
+#endif
     php_info_print_table_end();
 }
 
@@ -144,6 +153,8 @@ php_zopfli_encode(unsigned char *in, size_t in_size, int iteration,
 
     return SUCCESS;
 }
+
+#ifdef HAVE_ZLIB_H
 
 static inline int
 php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
@@ -223,7 +234,7 @@ php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
             // recompress
             compressed_buf = emalloc(inflate_buf_size * 2);
             ZopfliZlibCompress(&options, inflate_buf, inflate_buf_size, &compressed_buf, &compressed_buf_size);
-  
+
             // copy IDAT chunk length
             php_zopfli_write_uint32(*out, &opos, (uint32_t)compressed_buf_size);
 
@@ -262,6 +273,8 @@ php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
 
     return SUCCESS;
 }
+
+#endif
 
 #define PHP_ZOPFLI_ENCODE_FUNC(_name, _type) \
 static ZEND_FUNCTION(_name) \
@@ -302,6 +315,7 @@ PHP_ZOPFLI_ENCODE_FUNC(zopfli_deflate, ZOPFLI_TYPE_DEFLATE);
 
 static ZEND_FUNCTION(zopfli_png_recompress)
 {
+#ifdef HAVE_ZLIB_H
     long iteration = 15;
     char *in, *out = NULL;
     int in_size;
@@ -318,7 +332,11 @@ static ZEND_FUNCTION(zopfli_png_recompress)
         RETURN_FALSE;
     }
     RETVAL_STRINGL(out, out_size, 1);
-    efree(out);    
+    efree(out);
+#else
+    php_error_docref(NULL TSRMLS_CC, E_WARNING, "Not supported");
+    RETURN_FALSE;
+#endif
 }
 
 #ifdef HAVE_ZLIB_H
