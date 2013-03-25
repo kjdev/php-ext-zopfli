@@ -10,6 +10,28 @@
 
 #include "png.h"
 
+static void php_zopfli_write_idat_chunk(unsigned char *out, uint32_t *opos, 
+                                        unsigned char *idat_chunk, size_t idat_chunk_size)
+{
+    uLong crc;
+
+    // copy IDAT chunk length
+    php_zopfli_write_uint32(out, opos, (uint32_t)idat_chunk_size);
+
+    // copy IDAT chunk type
+    strncpy(((char *)out + *opos), "IDAT", sizeof("IDAT") - 1);
+    *opos += 4;
+
+    // copy idat chunk data
+    memcpy(out + *opos, idat_chunk, idat_chunk_size);
+    *opos += idat_chunk_size;
+
+    // copy idat chunk crc
+    crc = crc32(0L, (Bytef *)"IDAT", sizeof("IDAT") - 1);
+    crc = crc32(crc, idat_chunk, idat_chunk_size);
+    php_zopfli_write_uint32(out, opos, (uint32_t)crc);
+}
+
 int php_zopfli_is_invalid_signature(unsigned char *in)
 {
     if (strncmp((char *)in, "\x89\x50\x4e\x47\xd\xa\x1a\xa", ZOPFLI_PNG_SIGNATURE_SIZE) != 0) {
@@ -75,6 +97,23 @@ uLongf php_zopfli_calc_inflate_buf_size(unsigned char *in, uint32_t *ipos)
     bit_depth = depth == 16 ? 2 : 1;
     alpha     = (ctype & 0x4) == 0 ? 3 : 4;
     return width * height * bit_depth * alpha + height;
+}
+
+void php_zopfli_write_idat_chunks(unsigned char *out, uint32_t *opos, 
+                                  unsigned char *idat_chunks, size_t idat_chunks_size,
+                                  size_t idat_chunk_size)
+{
+    int i = 0;
+    while (idat_chunks_size > 0) {
+        if (idat_chunks_size < idat_chunk_size) {
+            php_zopfli_write_idat_chunk(out, opos, idat_chunks + (i * idat_chunk_size), idat_chunks_size);
+            idat_chunks_size = 0;
+        } else {
+            php_zopfli_write_idat_chunk(out, opos, idat_chunks + (i * idat_chunk_size), idat_chunk_size);
+            idat_chunks_size -= idat_chunk_size;
+        }
+        i++;
+    }
 }
 
 #endif

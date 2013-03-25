@@ -173,6 +173,8 @@ php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
     size_t compressed_buf_size;
     uLong crc;
     int result;
+    int idat_chunk_idx;
+    size_t idat_chunk_size;
 
     ZopfliInitOptions(&options);
     options.numiterations = iteration;
@@ -184,6 +186,8 @@ php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
     *out_size = 0;
     inflate_buf_size = 0;
     compressed_buf_size = 0;
+    idat_chunk_size = 0;
+    idat_chunk_idx = 0;
 
     if (php_zopfli_is_invalid_signature(in) == SUCCESS) {
         return FAILURE;
@@ -219,6 +223,10 @@ php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
             ipos += chunk_len + 4;
 
             idat_pos += chunk_len;
+            if (idat_chunk_idx == 0) {
+                idat_chunk_size = chunk_len;
+                idat_chunk_idx++;
+            }
         } else if (strncmp((char *)&in[ipos], "IEND", sizeof("IEND") - 1) == 0) {
             inflate_buf = emalloc(inflate_buf_size);
             if ((result = uncompress(inflate_buf, &inflate_buf_size, idat_buf, idat_pos)) != Z_OK) {
@@ -235,21 +243,10 @@ php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
             compressed_buf = malloc(inflate_buf_size * 2);
             ZopfliZlibCompress(&options, inflate_buf, inflate_buf_size, &compressed_buf, &compressed_buf_size);
 
-            // copy IDAT chunk length
-            php_zopfli_write_uint32(*out, &opos, (uint32_t)compressed_buf_size);
-
-            // copy IDAT chunk type
-            strncpy(((char *)*out + opos), "IDAT", sizeof("IDAT") - 1);
-            opos += 4;
-
-            // copy idat chunk data
-            memcpy(*out + opos, compressed_buf, compressed_buf_size);
-            opos += compressed_buf_size;
-
-            // copy idat chunk crc
-            crc = crc32(0L, (Bytef *)"IDAT", sizeof("IDAT") - 1);
-            crc = crc32(crc, compressed_buf, compressed_buf_size);
-            php_zopfli_write_uint32(*out, &opos, (uint32_t)crc);
+            // copy IDAT chunks
+            php_zopfli_write_idat_chunks(*out, &opos, 
+                                         compressed_buf, compressed_buf_size,
+                                         idat_chunk_size);
 
             // copy IEND chunk
             memcpy(*out + opos, &in[ipos - 4], chunk_len + 12);
