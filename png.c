@@ -10,7 +10,7 @@
 
 #include "png.h"
 
-static void php_zopfli_write_idat_chunk(unsigned char *out, uint32_t *opos, 
+static void php_zopfli_write_idat_chunk(unsigned char *out, uint32_t *opos,
                                         unsigned char *idat_chunk, size_t idat_chunk_size)
 {
     uLong crc;
@@ -99,7 +99,7 @@ uLongf php_zopfli_calc_inflate_buf_size(unsigned char *in, uint32_t *ipos)
     return width * height * bit_depth * alpha + height;
 }
 
-void php_zopfli_write_idat_chunks(unsigned char *out, uint32_t *opos, 
+void php_zopfli_write_idat_chunks(unsigned char *out, uint32_t *opos,
                                   unsigned char *idat_chunks, size_t idat_chunks_size,
                                   size_t idat_chunk_size)
 {

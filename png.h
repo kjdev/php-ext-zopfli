@@ -18,8 +18,7 @@ int php_zopfli_is_invalid_signature(unsigned char *in);
 uint32_t php_zopfli_read_uint32(unsigned char *in, uint32_t *ipos);
 void php_zopfli_write_uint32(unsigned char *out, uint32_t *opos, uint32_t data);
 uLongf php_zopfli_calc_inflate_buf_size(unsigned char *in, uint32_t *ipos);
-void php_zopfli_write_idat_chunks(unsigned char *out, uint32_t *opos, 
-                                  unsigned char *idat_chunks, size_t idat_chunks_size,
-                                  size_t idat_chunk_size);
+void php_zopfli_write_idat_chunks(unsigned char *out, uint32_t *opos,
+                                  unsigned char *idat_chunks, size_t idat_chunks_size, size_t idat_chunk_size);
 
 #endif
