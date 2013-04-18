@@ -15,7 +15,7 @@ Documentation for Zopfli can be found at [» https://code.google.com/p/zopfli/](
 
 ## Configration ##
 
-    zopfli.ini:
+zopfli.ini:
 
     extension=zopfli.so
 
