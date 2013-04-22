@@ -226,5 +226,5 @@ The recompressed PNG Image or FALSE on error.
 
 ## Related ##
 
-* [code coverage report](http://gcov.at-ninja.jp/php-ext-zopfli/)
-* [api document](http://api.at-ninja.jp/php-ext-zopfli/)
+* [code coverage report](http://gcov.at-ninja.jp.2-t.jp/6X)
+* [api document](http://api.at-ninja.jp.2-t.jp/6Y)
