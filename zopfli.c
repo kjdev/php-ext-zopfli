@@ -30,7 +30,6 @@ static ZEND_FUNCTION(zopfli_deflate);
 static ZEND_FUNCTION(zopfli_decode);
 static ZEND_FUNCTION(zopfli_uncompress);
 static ZEND_FUNCTION(zopfli_inflate);
-
 static ZEND_FUNCTION(zopfli_png_recompress);
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_zopfli_encode, 0, 0, 1)
@@ -279,42 +278,48 @@ php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
 
 #endif
 
-#define PHP_ZOPFLI_ENCODE_FUNC(_name, _type) \
-static ZEND_FUNCTION(_name) \
-{ \
-    long iteration = 15; \
-    char *in, *out = NULL; \
-    int in_size; \
-    size_t out_size = 0; \
-    long out_type = _type; \
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &in, &in_size, &iteration, &out_type) == FAILURE) { \
-        return; \
-    } \
-    if (iteration <= 0) { \
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "compression iterations (%ld) must be greater than 0", iteration); \
-        RETURN_FALSE; \
-    } \
-    switch (out_type) { \
-        case ZOPFLI_TYPE_GZIP: \
-        case ZOPFLI_TYPE_ZLIB: \
-        case ZOPFLI_TYPE_DEFLATE: \
-            break; \
-        default: \
-            php_error_docref(NULL TSRMLS_CC, E_WARNING, "type mode must be either ZOPFLI_GZIP, ZOPFLI_ZLIB or ZOPFLI_DEFLATE"); \
-            RETURN_FALSE; \
-    } \
-    if (php_zopfli_encode((unsigned char *)in, in_size, iteration, out_type, (unsigned char **)&out, &out_size TSRMLS_CC) != SUCCESS) { \
-        RETURN_FALSE; \
-    } \
-    PHP5TO7_RETVAL_STRINGL(out, out_size); \
-    free(out); \
+static inline void php_zopfli_encode_func(INTERNAL_FUNCTION_PARAMETERS, long out_type) {
+    long iteration = 15;
+    char *in, *out = NULL;
+    int in_size;
+    size_t out_size = 0;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &in, &in_size, &iteration, &out_type) == FAILURE) {
+        return;
+    }
+    if (iteration <= 0) {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "compression iterations (%ld) must be greater than 0", iteration);
+        RETURN_FALSE;
+    }
+    switch (out_type) {
+        case ZOPFLI_TYPE_GZIP:
+        case ZOPFLI_TYPE_ZLIB:
+        case ZOPFLI_TYPE_DEFLATE:
+            break;
+        default:
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "type mode must be either ZOPFLI_GZIP, ZOPFLI_ZLIB or ZOPFLI_DEFLATE");
+            RETURN_FALSE;
+    }
+    if (php_zopfli_encode((unsigned char *)in, in_size, iteration, out_type, (unsigned char **)&out, &out_size TSRMLS_CC) != SUCCESS) {
+        RETURN_FALSE;
+    }
+    PHP5TO7_RETVAL_STRINGL(out, out_size);
+    free(out);
 }
 
-PHP_ZOPFLI_ENCODE_FUNC(zopfli_encode, ZOPFLI_TYPE_GZIP);
+static ZEND_FUNCTION(zopfli_encode)
+{
+    php_zopfli_encode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, ZOPFLI_TYPE_GZIP);
+}
 
-PHP_ZOPFLI_ENCODE_FUNC(zopfli_compress, ZOPFLI_TYPE_ZLIB);
+static ZEND_FUNCTION(zopfli_compress)
+{
+    php_zopfli_encode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, ZOPFLI_TYPE_ZLIB);
+}
 
-PHP_ZOPFLI_ENCODE_FUNC(zopfli_deflate, ZOPFLI_TYPE_DEFLATE);
+static ZEND_FUNCTION(zopfli_deflate)
+{
+    php_zopfli_encode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, ZOPFLI_TYPE_DEFLATE);
+}
 
 static ZEND_FUNCTION(zopfli_png_recompress)
 {
@@ -453,116 +458,135 @@ retry_raw_inflate:
     return FAILURE;
 }
 
-#define PHP_ZOPFLI_DECODE_FUNC(_name, _type, _param_type) \
-static ZEND_FUNCTION(_name) \
-{ \
-    long max_size = 0; \
-    char *in, *out = NULL; \
-    int in_size; \
-    size_t out_size = 0; \
-    int in_type = _type; \
-    if (_param_type) { \
-        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &in, &in_size, &max_size, &in_type) == FAILURE) { \
-            return; \
-        } \
-        switch (in_type) { \
-            case PHP_ZLIB_ENCODING_GZIP: \
-            case PHP_ZLIB_ENCODING_DEFLATE: \
-            case PHP_ZLIB_ENCODING_RAW: \
-            case PHP_ZLIB_ENCODING_ANY: \
-                break; \
-            case ZOPFLI_TYPE_GZIP: \
-                in_type = PHP_ZLIB_ENCODING_GZIP; \
-                break; \
-            case ZOPFLI_TYPE_DEFLATE: \
-                in_type = PHP_ZLIB_ENCODING_RAW; \
-                break; \
-            case ZOPFLI_TYPE_ZLIB: \
-                in_type = PHP_ZLIB_ENCODING_DEFLATE; \
-                break; \
-            default: \
-                php_error_docref(NULL TSRMLS_CC, E_WARNING, "type mode must be either ZOPFLI_GZIP, ZOPFLI_ZLIB or ZOPFLI_DEFLATE"); \
-                RETURN_FALSE; \
-        } \
-    } else { \
-        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &in, &in_size, &max_size) == FAILURE) { \
-            return; \
-        } \
-    } \
-    if (max_size < 0) { \
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "length (%ld) must be greater or equal zero", max_size); \
-        RETURN_FALSE; \
-    } \
-    if (php_zopfli_decode(in, in_size, max_size, in_type, &out, &out_size TSRMLS_CC) != SUCCESS) { \
-        RETURN_FALSE; \
-    } \
-    PHP5TO7_RETVAL_STRINGL(out, out_size); \
-    efree(out); \
+static inline void php_zopfli_decode_func(INTERNAL_FUNCTION_PARAMETERS, int in_type, short param_type)
+{
+    long max_size = 0;
+    char *in, *out = NULL;
+    int in_size;
+    size_t out_size = 0;
+    if (param_type) {
+        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &in, &in_size, &max_size, &in_type) == FAILURE) {
+            return;
+        }
+        switch (in_type) {
+            case PHP_ZLIB_ENCODING_GZIP:
+            case PHP_ZLIB_ENCODING_DEFLATE:
+            case PHP_ZLIB_ENCODING_RAW:
+            case PHP_ZLIB_ENCODING_ANY:
+                break;
+            case ZOPFLI_TYPE_GZIP:
+                in_type = PHP_ZLIB_ENCODING_GZIP;
+                break;
+            case ZOPFLI_TYPE_DEFLATE:
+                in_type = PHP_ZLIB_ENCODING_RAW;
+                break;
+            case ZOPFLI_TYPE_ZLIB:
+                in_type = PHP_ZLIB_ENCODING_DEFLATE;
+                break;
+            default:
+                php_error_docref(NULL TSRMLS_CC, E_WARNING, "type mode must be either ZOPFLI_GZIP, ZOPFLI_ZLIB or ZOPFLI_DEFLATE");
+                RETURN_FALSE;
+        }
+    } else {
+        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &in, &in_size, &max_size) == FAILURE) {
+            return;
+        }
+    }
+    if (max_size < 0) {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "length (%ld) must be greater or equal zero", max_size);
+        RETURN_FALSE;
+    }
+    if (php_zopfli_decode(in, in_size, max_size, in_type, &out, &out_size TSRMLS_CC) != SUCCESS) {
+        RETURN_FALSE;
+    }
+    PHP5TO7_RETVAL_STRINGL(out, out_size);
+    efree(out);
 }
 
-PHP_ZOPFLI_DECODE_FUNC(zopfli_decode, PHP_ZLIB_ENCODING_GZIP, 1);
-PHP_ZOPFLI_DECODE_FUNC(zopfli_uncompress, PHP_ZLIB_ENCODING_DEFLATE, 0);
-PHP_ZOPFLI_DECODE_FUNC(zopfli_inflate, PHP_ZLIB_ENCODING_RAW, 0);
+static ZEND_FUNCTION(zopfli_decode)
+{
+    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, PHP_ZLIB_ENCODING_GZIP, 1);    
+}
+
+static ZEND_FUNCTION(zopfli_uncompress)
+{
+    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, PHP_ZLIB_ENCODING_DEFLATE, 0);    
+}
+
+static ZEND_FUNCTION(zopfli_inflate)
+{
+    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, PHP_ZLIB_ENCODING_RAW, 0);    
+}
 
 #else
 
-#define PHP_ZOPFLI_DECODE_FUNC(_name, _type, _param_type) \
-static ZEND_FUNCTION(_name) \
-{ \
-    long max_size = 0, in_type = _type; \
-    char *in; \
-    int in_size; \
-    zval *retval = NULL, *arg_in, *arg_max, fname; \
-    zval **args[2]; \
-    if (_param_type) { \
-        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &in, &in_size, &max_size, &in_type) == FAILURE) { \
-            return; \
-        } \
-    } else { \
-        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &in, &in_size, &max_size) == FAILURE) { \
-            return; \
-        } \
-    } \
-    if (max_size < 0) { \
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "length (%ld) must be greater or equal zero", max_size); \
-        RETURN_FALSE; \
-    } \
-    switch (in_type) { \
-        case ZOPFLI_TYPE_GZIP: \
-            ZVAL_STRING(&fname, "gzdecode", 0); \
-            break; \
-        case ZOPFLI_TYPE_DEFLATE: \
-            ZVAL_STRING(&fname, "gzinflate", 0); \
-            break; \
+static inline void php_zopfli_decode_func(INTERNAL_FUNCTION_PARAMETERS, long in_type, short param_type)
+{
+    long max_size = 0;
+    char *in;
+    int in_size;
+    zval *retval = NULL, *arg_in, *arg_max, fname;
+    zval **args[2];
+    if (param_type) {
+        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &in, &in_size, &max_size, &in_type) == FAILURE) {
+            return;
+        }
+    } else {
+        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &in, &in_size, &max_size) == FAILURE) {
+            return;
+        }
+    }
+    if (max_size < 0) {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "length (%ld) must be greater or equal zero", max_size);
+        RETURN_FALSE;
+    }
+    switch (in_type) {
+        case ZOPFLI_TYPE_GZIP:
+            ZVAL_STRING(&fname, "gzdecode", 0);
+            break;
+        case ZOPFLI_TYPE_DEFLATE:
+            ZVAL_STRING(&fname, "gzinflate", 0);
+            break;
         case ZOPFLI_TYPE_ZLIB: \
-            ZVAL_STRING(&fname, "gzuncompress", 0); \
-            break; \
-        default: \
-            php_error_docref(NULL TSRMLS_CC, E_WARNING, "type mode must be either ZOPFLI_GZIP, ZOPFLI_ZLIB or ZOPFLI_DEFLATE"); \
-            RETURN_FALSE; \
-    } \
-    args[0] = &arg_in; \
-    MAKE_STD_ZVAL(arg_in); \
-    ZVAL_STRINGL(arg_in, in, in_size, 1); \
-    args[1] = &arg_max; \
-    MAKE_STD_ZVAL(arg_max); \
-    ZVAL_LONG(arg_max, max_size); \
-    if (call_user_function_ex(CG(function_table), NULL, &fname, &retval, 2, args, 0, NULL TSRMLS_CC) == FAILURE || !retval) { \
-        zval_ptr_dtor(&arg_in); \
-        zval_ptr_dtor(&arg_max); \
-        RETURN_FALSE; \
-    } \
-    zval_ptr_dtor(&arg_in); \
-    zval_ptr_dtor(&arg_max); \
-    if (EG(exception)) { \
-        zval_ptr_dtor(&retval); \
-        RETURN_FALSE; \
-    } \
-    RETURN_ZVAL(retval, 1, 0); \
+            ZVAL_STRING(&fname, "gzuncompress", 0);
+            break;
+        default:
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "type mode must be either ZOPFLI_GZIP, ZOPFLI_ZLIB or ZOPFLI_DEFLATE");
+            RETURN_FALSE;
+    }
+    args[0] = &arg_in;
+    MAKE_STD_ZVAL(arg_in);
+    ZVAL_STRINGL(arg_in, in, in_size, 1);
+    args[1] = &arg_max;
+    MAKE_STD_ZVAL(arg_max);
+    ZVAL_LONG(arg_max, max_size);
+    if (call_user_function_ex(CG(function_table), NULL, &fname, &retval, 2, args, 0, NULL TSRMLS_CC) == FAILURE || !retval) {
+        zval_ptr_dtor(&arg_in);
+        zval_ptr_dtor(&arg_max);
+        RETURN_FALSE;
+    }
+    zval_ptr_dtor(&arg_in);
+    zval_ptr_dtor(&arg_max);
+    if (EG(exception)) {
+        zval_ptr_dtor(&retval);
+        RETURN_FALSE;
+    }
+    RETURN_ZVAL(retval, 1, 0);
 }
 
-PHP_ZOPFLI_DECODE_FUNC(zopfli_decode, ZOPFLI_TYPE_GZIP, 1);
-PHP_ZOPFLI_DECODE_FUNC(zopfli_uncompress, ZOPFLI_TYPE_ZLIB, 0);
-PHP_ZOPFLI_DECODE_FUNC(zopfli_inflate, ZOPFLI_TYPE_DEFLATE, 0);
+static ZEND_FUNCTION(zopfli_decode)
+{
+    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, ZOPFLI_TYPE_GZIP, 1);    
+}
+
+static ZEND_FUNCTION(zopfli_uncompress)
+{
+    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, ZOPFLI_TYPE_ZLIB, 0);    
+}
+
+static ZEND_FUNCTION(zopfli_inflate)
+{
+    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, ZOPFLI_TYPE_DEFLATE, 0);    
+}
 
 #endif
