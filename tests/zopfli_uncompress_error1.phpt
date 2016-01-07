@@ -68,6 +68,6 @@ bool(false)
 Warning: %suncompress() expects parameter 1 to be string, object given in %s on line %d
 NULL
 
-Warning: %suncompress() expects parameter 2 to be long, string given in %s on line %d
+Warning: %suncompress() expects parameter 2 to be %s, string given in %s on line %d
 NULL
 ===DONE===
