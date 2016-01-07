@@ -1,12 +1,11 @@
 
 #ifdef HAVE_CONFIG_H
-#    include "config.h"
+#include "config.h"
 #endif
 
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
-#include "php_verdep.h"
 #include "php_zopfli.h"
 
 #ifdef HAVE_ZLIB_H
@@ -85,7 +84,7 @@ static zend_function_entry zopfli_functions[] = {
     ZEND_FE_END
 };
 
-ZEND_MINIT_FUNCTION(zopfli)
+static ZEND_MINIT_FUNCTION(zopfli)
 {
     REGISTER_LONG_CONSTANT("ZOPFLI_GZIP", ZOPFLI_TYPE_GZIP,
                            CONST_CS | CONST_PERSISTENT);
@@ -96,12 +95,7 @@ ZEND_MINIT_FUNCTION(zopfli)
     return SUCCESS;
 }
 
-ZEND_MSHUTDOWN_FUNCTION(zopfli)
-{
-    return SUCCESS;
-}
-
-ZEND_MINFO_FUNCTION(zopfli)
+static ZEND_MINFO_FUNCTION(zopfli)
 {
     php_info_print_table_start();
     php_info_print_table_row(2, "Zopfli support", "enabled");
@@ -115,19 +109,15 @@ ZEND_MINFO_FUNCTION(zopfli)
 }
 
 zend_module_entry zopfli_module_entry = {
-#if ZEND_MODULE_API_NO >= 20010901
     STANDARD_MODULE_HEADER,
-#endif
     "zopfli",
     zopfli_functions,
     ZEND_MINIT(zopfli),
-    ZEND_MSHUTDOWN(zopfli),
+    NULL,
     NULL,
     NULL,
     ZEND_MINFO(zopfli),
-#if ZEND_MODULE_API_NO >= 20010901
     ZOPFLI_EXT_VERSION,
-#endif
     STANDARD_MODULE_PROPERTIES
 };
 
