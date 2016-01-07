@@ -13,6 +13,12 @@
 #include "png.h"
 #endif
 
+#if PHP_MAJOR_VERSION < 7
+#define PHP5TO7_RETVAL_STRINGL(a, b) RETVAL_STRINGL(a, b, 1)
+#else
+#define PHP5TO7_RETVAL_STRINGL(a, b) RETVAL_STRINGL(a, b)
+#endif
+
 /* zopfli */
 #include "zopfli/deflate.h"
 #include "zopfli/gzip_container.h"
@@ -300,7 +306,7 @@ static ZEND_FUNCTION(_name) \
     if (php_zopfli_encode((unsigned char *)in, in_size, iteration, out_type, (unsigned char **)&out, &out_size TSRMLS_CC) != SUCCESS) { \
         RETURN_FALSE; \
     } \
-    RETVAL_STRINGL(out, out_size, 1); \
+    PHP5TO7_RETVAL_STRINGL(out, out_size); \
     free(out); \
 }
 
@@ -328,7 +334,7 @@ static ZEND_FUNCTION(zopfli_png_recompress)
         php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid PNG Image");
         RETURN_FALSE;
     }
-    RETVAL_STRINGL(out, out_size, 1);
+    PHP5TO7_RETVAL_STRINGL(out, out_size);
     efree(out);
 #else
     php_error_docref(NULL TSRMLS_CC, E_WARNING, "Not supported");
@@ -490,7 +496,8 @@ static ZEND_FUNCTION(_name) \
     if (php_zopfli_decode(in, in_size, max_size, in_type, &out, &out_size TSRMLS_CC) != SUCCESS) { \
         RETURN_FALSE; \
     } \
-    RETURN_STRINGL(out, out_size, 0); \
+    PHP5TO7_RETVAL_STRINGL(out, out_size); \
+    efree(out); \
 }
 
 PHP_ZOPFLI_DECODE_FUNC(zopfli_decode, PHP_ZLIB_ENCODING_GZIP, 1);
