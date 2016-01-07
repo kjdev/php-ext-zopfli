@@ -14,8 +14,11 @@
 #endif
 
 #if PHP_MAJOR_VERSION < 7
+typedef int strsize_t;
+typedef long zend_long;
 #define PHP5TO7_RETVAL_STRINGL(a, b) RETVAL_STRINGL(a, b, 1)
 #else
+typedef size_t strsize_t;
 #define PHP5TO7_RETVAL_STRINGL(a, b) RETVAL_STRINGL(a, b)
 #endif
 
@@ -278,10 +281,11 @@ php_zopfli_png_recompress(unsigned char *in, size_t in_size, int iteration,
 
 #endif
 
-static inline void php_zopfli_encode_func(INTERNAL_FUNCTION_PARAMETERS, long out_type) {
-    long iteration = 15;
-    char *in, *out = NULL;
-    int in_size;
+static inline void php_zopfli_encode_func(INTERNAL_FUNCTION_PARAMETERS, zend_long out_type) {
+    zend_long iteration = 15;
+    char *in;
+    char *out = NULL;
+    strsize_t in_size;
     size_t out_size = 0;
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &in, &in_size, &iteration, &out_type) == FAILURE) {
         return;
@@ -324,9 +328,10 @@ static ZEND_FUNCTION(zopfli_deflate)
 static ZEND_FUNCTION(zopfli_png_recompress)
 {
 #ifdef HAVE_ZLIB_H
-    long iteration = 15;
-    char *in, *out = NULL;
-    int in_size;
+    zend_long iteration = 15;
+    char *in;
+    char *out = NULL;
+    strsize_t in_size;
     size_t out_size = 0;
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &in, &in_size, &iteration) == FAILURE) {
         return;
@@ -458,11 +463,12 @@ retry_raw_inflate:
     return FAILURE;
 }
 
-static inline void php_zopfli_decode_func(INTERNAL_FUNCTION_PARAMETERS, int in_type, short param_type)
+static inline void php_zopfli_decode_func(INTERNAL_FUNCTION_PARAMETERS, zend_long in_type, zend_long param_type)
 {
-    long max_size = 0;
-    char *in, *out = NULL;
-    int in_size;
+    zend_long max_size = 0;
+    char *in;
+    char *out = NULL;
+    strsize_t in_size;
     size_t out_size = 0;
     if (param_type) {
         if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &in, &in_size, &max_size, &in_type) == FAILURE) {
@@ -520,11 +526,11 @@ static ZEND_FUNCTION(zopfli_inflate)
 
 #else
 
-static inline void php_zopfli_decode_func(INTERNAL_FUNCTION_PARAMETERS, long in_type, short param_type)
+static inline void php_zopfli_decode_func(INTERNAL_FUNCTION_PARAMETERS, zend_long in_type, zend_long param_type)
 {
-    long max_size = 0;
+    zend_long max_size = 0;
     char *in;
-    int in_size;
+    strsize_t in_size;
     zval *retval = NULL, *arg_in, *arg_max, fname;
     zval **args[2];
     if (param_type) {
