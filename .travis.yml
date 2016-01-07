@@ -1,15 +1,21 @@
 language: php
 
 php:
-  - 5.2
   - 5.3
   - 5.4
-
-env:
-  - REPORT_EXIT_STATUS=1 NO_INTERACTION=1
+  - 5.5
+  - 5.6
+  - 7.0
 
 before_script:
-  - phpize && ./configure && make
+  - phpize
+  - ./configure
+  - make
 
 script:
-  - make test | tee test-output.txt && grep 'TEST SUMMARY$' test-output.txt > /dev/null ; test $? '!=' 0
+  - export NO_INTERACTION=1
+  - export REPORT_EXIT_STATUS=1
+  - export TEST_PHP_EXECUTABLE=`which php`
+  - php run-tests.php -d extension=zopfli.so -d extension_dir=modules -n ./tests/
+  - for i in `find tests -name "*.out" 2>/dev/null`; do echo "-- START ${i}"; cat $i; echo "-- END"; done
+

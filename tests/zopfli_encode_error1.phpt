@@ -77,15 +77,15 @@ bool(false)
 Warning: zopfli_encode() expects parameter 1 to be string, object given in %s on line %d
 NULL
 
-Warning: zopfli_encode() expects parameter 2 to be long, object given in %s on line %d
+Warning: zopfli_encode() expects parameter 2 to be %s, object given in %s on line %d
 NULL
 
 Warning: zopfli_encode(): type mode must be either ZOPFLI_GZIP, ZOPFLI_ZLIB or ZOPFLI_DEFLATE in %s on line %d
 bool(false)
 
-Warning: zopfli_encode() expects parameter 3 to be long, object given in %s on line %d
+Warning: zopfli_encode() expects parameter 3 to be %s, object given in %s on line %d
 NULL
 
-Warning: zopfli_encode() expects parameter 2 to be long, string given in %s on line %d
+Warning: zopfli_encode() expects parameter 2 to be %s, string given in %s on line %d
 NULL
 ===Done===
