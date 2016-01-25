@@ -43,3 +43,4 @@ missing
 mkinstalldirs
 run-tests.php
 tmp-php.ini
+tests/php-recomp.png
