@@ -8,6 +8,7 @@ Documentation for Zopfli can be found at [» https://github.com/google/zopfli](h
 
 ## Build ##
 
+    % git submodule update --init
     % phpize
     % ./configure
     % make
