@@ -1,13 +1,14 @@
 # Zopfli Extension for PHP #
 
-[![Build Status](https://travis-ci.org/kjdev/php-ext-zopfli.png?branch=master)](http://travis-ci.org/kjdev/php-ext-zopfli)
+[![Build Status](https://travis-ci.org/kjdev/php-ext-zopfli.svg?branch=master)](http://travis-ci.org/kjdev/php-ext-zopfli)
 
 This extension allows Zopfli compression.
 
-Documentation for Zopfli can be found at [» https://code.google.com/p/zopfli/](https://code.google.com/p/zopfli/).
+Documentation for Zopfli can be found at [» https://github.com/google/zopfli](https://github.com/google/zopfli).
 
 ## Build ##
 
+    % git submodule update --init
     % phpize
     % ./configure
     % make
