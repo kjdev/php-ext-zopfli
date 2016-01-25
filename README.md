@@ -4,7 +4,7 @@
 
 This extension allows Zopfli compression.
 
-Documentation for Zopfli can be found at [» https://code.google.com/p/zopfli/](https://code.google.com/p/zopfli/).
+Documentation for Zopfli can be found at [» https://github.com/google/zopfli](https://github.com/google/zopfli).
 
 ## Build ##
 
