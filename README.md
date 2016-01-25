@@ -18,7 +18,9 @@ Documentation for Zopfli can be found at [» https://github.com/google/zopfli](h
 
 zopfli.ini:
 
-    extension=zopfli.so
+```ini
+extension=zopfli.so
+```
 
 ## Function ##
 
@@ -206,24 +208,26 @@ The recompressed PNG Image or FALSE on error.
 
 ## Examples ##
 
-    $data = zopfli_encode('test');
+```php
+$data = zopfli_encode('test');
 
-    zopfli_decode($data);
-    //gzdecode($data);
+zopfli_decode($data);
+//gzdecode($data);
 
-    $data = zopfli_compress('test');
+$data = zopfli_compress('test');
 
-    zopfli_uncompress($data);
-    //gzuncompress($data);
+zopfli_uncompress($data);
+//gzuncompress($data);
 
-    $data = zopfli_deflate('test');
+$data = zopfli_deflate('test');
 
-    zopfli_inflate($data);
-    //gzinflate($data);
+zopfli_inflate($data);
+//gzinflate($data);
 
-    $data = file_get_contents('original.png');
-    $recompress = zopfli_png_recompress($data);
-    file_put_contents('recompress.png', $recompress);
+$data = file_get_contents('original.png');
+$recompress = zopfli_png_recompress($data);
+file_put_contents('recompress.png', $recompress);
+```
 
 ## Related ##
 
