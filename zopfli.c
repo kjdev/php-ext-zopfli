@@ -22,9 +22,9 @@ typedef size_t strsize_t;
 #endif
 
 /* zopfli */
-#include "zopfli/deflate.h"
-#include "zopfli/gzip_container.h"
-#include "zopfli/zlib_container.h"
+#include "zopfli/src/zopfli/deflate.h"
+#include "zopfli/src/zopfli/gzip_container.h"
+#include "zopfli/src/zopfli/zlib_container.h"
 
 static ZEND_FUNCTION(zopfli_encode);
 static ZEND_FUNCTION(zopfli_compress);
