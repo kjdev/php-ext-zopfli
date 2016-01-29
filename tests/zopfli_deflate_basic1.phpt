@@ -47,31 +47,31 @@ var_dump( bin2hex(zopfli_deflate($smallstring) ));
 --EXPECT--
 *** Testing zopfli_deflate() : basic functionality ***
 -- Iterations 1 --
-string(32) "c51e476d8ade3ff8736a94d126b93489"
+string(32) "b964e579756db2dd3def27798accbe93"
 int(0)
 -- Iterations 2 --
-string(32) "a86e09633b5fafa6ff62dc11aa653041"
+string(32) "a9d3144eea31e0a9859184da990a02fc"
 int(0)
 -- Iterations 3 --
-string(32) "cb531d26850282df19b49ccc1767ae0d"
+string(32) "44a09b1d30aaa109b3acb3cd24b93421"
 int(0)
 -- Iterations 4 --
-string(32) "cb531d26850282df19b49ccc1767ae0d"
+string(32) "44a09b1d30aaa109b3acb3cd24b93421"
 int(0)
 -- Iterations 5 --
-string(32) "cb531d26850282df19b49ccc1767ae0d"
+string(32) "44a09b1d30aaa109b3acb3cd24b93421"
 int(0)
 -- Iterations 6 --
-string(32) "cb531d26850282df19b49ccc1767ae0d"
+string(32) "44a09b1d30aaa109b3acb3cd24b93421"
 int(0)
 -- Iterations 7 --
-string(32) "cb531d26850282df19b49ccc1767ae0d"
+string(32) "44a09b1d30aaa109b3acb3cd24b93421"
 int(0)
 -- Iterations 8 --
-string(32) "cb531d26850282df19b49ccc1767ae0d"
+string(32) "44a09b1d30aaa109b3acb3cd24b93421"
 int(0)
 -- Iterations 9 --
-string(32) "cb531d26850282df19b49ccc1767ae0d"
+string(32) "44a09b1d30aaa109b3acb3cd24b93421"
 int(0)
 -- Iterations 1 --
 string(58) "735428ce4dccc951282e29cacc4b5728c95748cecf2d284a2d2ee60200"

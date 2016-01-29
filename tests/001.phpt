@@ -27,9 +27,9 @@ $unpacked = zopfli_inflate($packed);
 if (strcmp($original,$unpacked) == 0) echo "Strings are equal";
 ?>
 --EXPECT--
-100 36864
+99 36864
 Strings are equal
-100 36864
+99 36864
 Strings are equal
 4 15
 Strings are equal

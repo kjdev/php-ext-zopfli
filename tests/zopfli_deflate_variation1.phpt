@@ -24,6 +24,6 @@ var_dump(md5(zopfli_deflate($output)));
 *** Testing zopfli_deflate() : variation ***
 
 -- Testing multiple compression --
-string(32) "cb531d26850282df19b49ccc1767ae0d"
-string(32) "2ffb3664c82c897fb4b48c5bbabdd047"
+string(32) "44a09b1d30aaa109b3acb3cd24b93421"
+string(32) "673f78d6b4414bb62c6e86add1bcfbfd"
 ===Done===

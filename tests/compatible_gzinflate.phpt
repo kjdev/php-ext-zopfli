@@ -24,7 +24,7 @@ if (strcmp($data, $unpacked) == 0) echo "Strings are equal\n";
 ?>
 --EXPECT--
 *** Tesging zopfli_deflate()/gzinflate() ***
-1744 3547
+1746 3547
 Strings are equal
 *** Tesging gzdeflate()/zopfli_inflate() ***
 1788 3547

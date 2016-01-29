@@ -22,7 +22,7 @@ var_dump(zopfli_inflate($truncated));
 ?>
 --EXPECTF--
 int(168890)
-int(41177)
+int(41713)
 int(40154)
 
 Warning: %sinflate(): data error in %s on line %d

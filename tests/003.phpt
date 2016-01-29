@@ -13,5 +13,5 @@ echo strlen($packed)." ".strlen($original). "\n";
 if (strcmp($original, zopfli_decode($packed)) == 0) echo "Strings are equal";
 ?>
 --EXPECT--
-118 36864
+117 36864
 Strings are equal

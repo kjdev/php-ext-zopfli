@@ -21,5 +21,5 @@ echo  "RECOMPRESS: ", filesize($recompress_file), "\n";
 --EXPECT--
 *** Testing zopfli_png_recompress() ***
 ORIGIN: 2413
-RECOMPRESS: 2333
+RECOMPRESS: 2334
 ===Done===
