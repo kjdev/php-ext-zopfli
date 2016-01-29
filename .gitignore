@@ -44,3 +44,4 @@ mkinstalldirs
 run-tests.php
 tmp-php.ini
 tests/php-recomp.png
+php_test_results_*.txt
