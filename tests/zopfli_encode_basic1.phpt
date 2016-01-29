@@ -56,23 +56,23 @@ var_dump(bin2hex(zopfli_encode($smallstring, 1, ZOPFLI_GZIP)));
 --EXPECTF--
 *** Testing zopfli_encode() : basic functionality ***
 -- Iteration 1 --
-string(32) "5bac24f86ca49195a6798d981cf9e7d3"
+string(32) "c47f8d51e9a3a3015b3a4a728c90b47d"
 -- Iteration 2 --
-string(32) "3b9ab27ec8a0d735bc4dae352709b2ee"
+string(32) "4d2038499581ecfda70dfe41607b8364"
 -- Iteration 3 --
-string(32) "6dad2338239639cf79fa1d858d7470f8"
+string(32) "a5287642c204dbe69fa83d2de9c97723"
 -- Iteration 4 --
-string(32) "6dad2338239639cf79fa1d858d7470f8"
+string(32) "a5287642c204dbe69fa83d2de9c97723"
 -- Iteration 5 --
-string(32) "6dad2338239639cf79fa1d858d7470f8"
+string(32) "a5287642c204dbe69fa83d2de9c97723"
 -- Iteration 6 --
-string(32) "6dad2338239639cf79fa1d858d7470f8"
+string(32) "a5287642c204dbe69fa83d2de9c97723"
 -- Iteration 7 --
-string(32) "6dad2338239639cf79fa1d858d7470f8"
+string(32) "a5287642c204dbe69fa83d2de9c97723"
 -- Iteration 8 --
-string(32) "6dad2338239639cf79fa1d858d7470f8"
+string(32) "a5287642c204dbe69fa83d2de9c97723"
 -- Iteration 9 --
-string(32) "6dad2338239639cf79fa1d858d7470f8"
+string(32) "a5287642c204dbe69fa83d2de9c97723"
 -- Iteration 1 --
 string(32) "8849e9a1543c04b3f882b5ce20839ed2"
 -- Iteration 2 --

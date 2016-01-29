@@ -47,31 +47,31 @@ var_dump( bin2hex(zopfli_compress($smallstring) ));
 --EXPECT--
 *** Testing zopfli_compress() : basic functionality ***
 -- Iterations 1 --
-string(32) "1ba3eb59b9136280d0369d302faa2ff0"
+string(32) "aa9ec697ac05881a56befa5d1c2176fe"
 int(0)
 -- Iterations 2 --
-string(32) "6d52d751dc814c29972143828722423f"
+string(32) "b3d945d2cfdbc9aaf2e5e8d283b235dc"
 int(0)
 -- Iterations 3 --
-string(32) "6e274453c23959add19291e8769753b7"
+string(32) "b2000ecc797222480a58ec6c2d6ae605"
 int(0)
 -- Iterations 4 --
-string(32) "6e274453c23959add19291e8769753b7"
+string(32) "b2000ecc797222480a58ec6c2d6ae605"
 int(0)
 -- Iterations 5 --
-string(32) "6e274453c23959add19291e8769753b7"
+string(32) "b2000ecc797222480a58ec6c2d6ae605"
 int(0)
 -- Iterations 6 --
-string(32) "6e274453c23959add19291e8769753b7"
+string(32) "b2000ecc797222480a58ec6c2d6ae605"
 int(0)
 -- Iterations 7 --
-string(32) "6e274453c23959add19291e8769753b7"
+string(32) "b2000ecc797222480a58ec6c2d6ae605"
 int(0)
 -- Iterations 8 --
-string(32) "6e274453c23959add19291e8769753b7"
+string(32) "b2000ecc797222480a58ec6c2d6ae605"
 int(0)
 -- Iterations 9 --
-string(32) "6e274453c23959add19291e8769753b7"
+string(32) "b2000ecc797222480a58ec6c2d6ae605"
 int(0)
 -- Iterations 1 --
 string(70) "7801735428ce4dccc951282e29cacc4b5728c95748cecf2d284a2d2ee6020087a509cb"

@@ -60,29 +60,29 @@ if (strcmp($data,zopfli_decode($packed, strlen($data), ZOPFLI_GZIP)) == 0) echo 
 ?>
 --EXPECT--
 *** Tesging zopfli_encode()/gzdecode() ***
-1762 3547
+1764 3547
 Strings are equal
 *** Tesging gzencode()/zopfli_decode() ***
 1806 3547
 Strings are equal
 *** Tesging zopfli_encode()/gzuncompress() ***
-1750 3547
+1752 3547
 Strings are equal
 *** Tesging zopfli_encode()/gzdeflate() ***
-1744 3547
+1746 3547
 Strings are equal
 *** Tesging zopfli_encode(): ZOPFLI_ZLIB ***
-1750 3547
+1752 3547
 Strings are equal: gzuncompress
 Strings are equal: zopfli_uncompress
 Strings are equal: zopfli_decode(ZOPFLI_ZLIB)
 *** Tesging zopfli_encode(): ZOPFLI_DEFLATE ***
-1744 3547
+1746 3547
 Strings are equal: gzinflate
 Strings are equal: zopfli_inflate
 Strings are equal: zopfli_decode(ZOPFLI_DEFLATE)
 *** Tesging zopfli_encode(): ZOPFLI_GZIP ***
-1762 3547
+1764 3547
 Strings are equal: gzdecode
 Strings are equal: zopfli_decode
 Strings are equal: zopfli_decode(ZOPFLI_GZIP) equal

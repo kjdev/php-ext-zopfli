@@ -22,6 +22,6 @@ var_dump(md5(zopfli_compress($output)));
 *** Testing zopfli_compress() : variation ***
 
 -- Testing multiple compression --
-string(32) "6e274453c23959add19291e8769753b7"
-string(32) "1a06702b6540d2f6d0b4dcb06fd02205"
+string(32) "b2000ecc797222480a58ec6c2d6ae605"
+string(32) "714d6a63fa4992240adfcca023b0ad6c"
 ===Done===

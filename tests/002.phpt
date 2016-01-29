@@ -21,7 +21,7 @@ $unpacked = zopfli_uncompress($packed, 40000);
 if (strcmp($original,$unpacked) == 0) echo "Strings are equal\n";
 ?>
 --EXPECT--
-106 36864
+105 36864
 Strings are equal
-106 36864
+105 36864
 Strings are equal

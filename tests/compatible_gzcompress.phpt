@@ -24,7 +24,7 @@ if (strcmp($data, $unpacked) == 0) echo "Strings are equal\n";
 ?>
 --EXPECT--
 *** Tesging zopfli_compress()/gzuncompress() ***
-1750 3547
+1752 3547
 Strings are equal
 *** Tesging gzcompress()/zopfli_uncompress() ***
 1794 3547
