@@ -501,17 +501,17 @@ static inline void php_zopfli_decode_func(INTERNAL_FUNCTION_PARAMETERS, zend_lon
 
 static ZEND_FUNCTION(zopfli_decode)
 {
-    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, PHP_ZLIB_ENCODING_GZIP, 1);    
+    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, PHP_ZLIB_ENCODING_GZIP, 1);
 }
 
 static ZEND_FUNCTION(zopfli_uncompress)
 {
-    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, PHP_ZLIB_ENCODING_DEFLATE, 0);    
+    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, PHP_ZLIB_ENCODING_DEFLATE, 0);
 }
 
 static ZEND_FUNCTION(zopfli_inflate)
 {
-    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, PHP_ZLIB_ENCODING_RAW, 0);    
+    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, PHP_ZLIB_ENCODING_RAW, 0);
 }
 
 #else
@@ -572,17 +572,17 @@ static inline void php_zopfli_decode_func(INTERNAL_FUNCTION_PARAMETERS, zend_lon
 
 static ZEND_FUNCTION(zopfli_decode)
 {
-    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, ZOPFLI_TYPE_GZIP, 1);    
+    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, ZOPFLI_TYPE_GZIP, 1);
 }
 
 static ZEND_FUNCTION(zopfli_uncompress)
 {
-    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, ZOPFLI_TYPE_ZLIB, 0);    
+    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, ZOPFLI_TYPE_ZLIB, 0);
 }
 
 static ZEND_FUNCTION(zopfli_inflate)
 {
-    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, ZOPFLI_TYPE_DEFLATE, 0);    
+    php_zopfli_decode_func(INTERNAL_FUNCTION_PARAM_PASSTHRU, ZOPFLI_TYPE_DEFLATE, 0);
 }
 
 #endif
