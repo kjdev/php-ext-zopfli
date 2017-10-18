@@ -1,4 +1,5 @@
 language: php
+dist: precise
 
 php:
   - 5.3
@@ -9,17 +10,14 @@ php:
   - 7.1
   - 7.2
 
-sudo: false
+env:
+  - REPORT_EXIT_STATUS=1 NO_INTERACTION=1
 
 before_script:
-  - phpize
-  - ./configure
-  - make
+  - phpize && ./configure && make
 
 script:
-  - export NO_INTERACTION=1
-  - export REPORT_EXIT_STATUS=1
-  - export TEST_PHP_EXECUTABLE=`which php`
-  - php run-tests.php -d extension=zopfli.so -d extension_dir=modules -n ./tests/
-  - for i in `find tests -name "*.out" 2>/dev/null`; do echo "-- START ${i}"; cat $i; echo "-- END"; done
+  - make test | tee test-output.txt && grep 'TEST SUMMARY$' test-output.txt > /dev/null ; test $? '!=' 0
 
+after_failure:
+  - for FILE in `find ./tests -name '*.diff'`; do echo echo $FILE; cat $FILE; echo; done
