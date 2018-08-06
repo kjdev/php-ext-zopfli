@@ -1,0 +1,4 @@
+* text=auto
+
+*.phpt text eol=lf
+*.inc text eol=lf

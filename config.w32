@@ -1,5 +1,11 @@
  ARG_ENABLE("zopfli", "enable zopfli support", "no");
 
 if (PHP_ZOPFLI != "no") {
-   EXTENSION("zopfli", "zopfli.c zopfli/src/zopfli/blocksplitter.c zopfli/src/zopfli/hash.c zopfli/src/zopfli/tree.c zopfli/src/zopfli/cache.c zopfli/src/zopfli/katajainen.c zopfli/src/zopfli/util.c zopfli/src/zopfli/deflate.c zopfli/src/zopfli/lz77.c zopfli/src/zopfli/zlib_container.c zopfli/src/zopfli/gzip_container.c zopfli/src/zopfli/squeeze.c");
+   if (CHECK_LIB("zlib_a.lib;zlib.lib", "zopfli", PHP_ZOPFLI) &&
+      CHECK_HEADER_ADD_INCLUDE("zlib.h", "CFLAGS", "..\\zlib;" + php_usual_include_suspects)) {
+      MESSAGE('zlib support for zopfli enabled');
+   } else {
+      WARNING('zlib support for zopfli disabled: zlib not found');
+   }
+   EXTENSION("zopfli", "zopfli.c png.c zopfli/src/zopfli/blocksplitter.c zopfli/src/zopfli/hash.c zopfli/src/zopfli/tree.c zopfli/src/zopfli/cache.c zopfli/src/zopfli/katajainen.c zopfli/src/zopfli/util.c zopfli/src/zopfli/deflate.c zopfli/src/zopfli/lz77.c zopfli/src/zopfli/zlib_container.c zopfli/src/zopfli/gzip_container.c zopfli/src/zopfli/squeeze.c");
 }
