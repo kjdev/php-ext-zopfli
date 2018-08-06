@@ -521,8 +521,7 @@ static inline void php_zopfli_decode_func(INTERNAL_FUNCTION_PARAMETERS, zend_lon
     zend_long max_size = 0;
     char *in;
     strsize_t in_size;
-    zval *retval = NULL, *arg_in, *arg_max, fname;
-    zval **args[2];
+    zval args[2], retval, fname;
     if (param_type) {
         if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &in, &in_size, &max_size, &in_type) == FAILURE) {
             return;
@@ -538,36 +537,35 @@ static inline void php_zopfli_decode_func(INTERNAL_FUNCTION_PARAMETERS, zend_lon
     }
     switch (in_type) {
         case ZOPFLI_TYPE_GZIP:
-            ZVAL_STRING(&fname, "gzdecode", 0);
+            ZVAL_STRING(&fname, "gzdecode");
             break;
         case ZOPFLI_TYPE_DEFLATE:
-            ZVAL_STRING(&fname, "gzinflate", 0);
+            ZVAL_STRING(&fname, "gzinflate");
             break;
-        case ZOPFLI_TYPE_ZLIB: \
-            ZVAL_STRING(&fname, "gzuncompress", 0);
+        case ZOPFLI_TYPE_ZLIB:
+            ZVAL_STRING(&fname, "gzuncompress");
             break;
         default:
             php_error_docref(NULL TSRMLS_CC, E_WARNING, "type mode must be either ZOPFLI_GZIP, ZOPFLI_ZLIB or ZOPFLI_DEFLATE");
             RETURN_FALSE;
     }
-    args[0] = &arg_in;
-    MAKE_STD_ZVAL(arg_in);
-    ZVAL_STRINGL(arg_in, in, in_size, 1);
-    args[1] = &arg_max;
-    MAKE_STD_ZVAL(arg_max);
-    ZVAL_LONG(arg_max, max_size);
-    if (call_user_function_ex(CG(function_table), NULL, &fname, &retval, 2, args, 0, NULL TSRMLS_CC) == FAILURE || !retval) {
-        zval_ptr_dtor(&arg_in);
-        zval_ptr_dtor(&arg_max);
+
+    ZVAL_STRINGL(&args[0], in, in_size);
+    ZVAL_LONG(&args[1], max_size);
+    if (call_user_function_ex(CG(function_table), NULL, &fname, &retval, 2, args, 0, NULL TSRMLS_CC) == FAILURE) {
+        zval_ptr_dtor(&args[0]);
+        zval_ptr_dtor(&args[1]);
+        zval_ptr_dtor(&fname);
         RETURN_FALSE;
     }
-    zval_ptr_dtor(&arg_in);
-    zval_ptr_dtor(&arg_max);
+    zval_ptr_dtor(&args[0]);
+    zval_ptr_dtor(&args[1]);
+    zval_ptr_dtor(&fname);
     if (EG(exception)) {
         zval_ptr_dtor(&retval);
         RETURN_FALSE;
     }
-    RETURN_ZVAL(retval, 1, 0);
+    RETURN_ZVAL(&retval, 1, 0);
 }
 
 static ZEND_FUNCTION(zopfli_decode)
