@@ -147,7 +147,7 @@ same as gzuncompress().
 
 * _data_
 
-  The data compressed by zopfli\_uncompress(), gzcompress().
+  The data compressed by zopfli\_compress(), gzcompress().
 
 * _length_
 
@@ -166,7 +166,7 @@ string **zopfli\_inflate** ( string _$data_ [, int _$length_ = 0 ] )
 
 This function inflate a deflated string.
 
-same as gzinfrate().
+same as gzinflate().
 
 ### Parameters ###
 
