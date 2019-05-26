@@ -2,7 +2,7 @@
 #ifndef PHP_ZOPFLI_H
 #define PHP_ZOPFLI_H
 
-#define ZOPFLI_EXT_VERSION "0.2.1"
+#define ZOPFLI_EXT_VERSION "0.3.0"
 
 #define ZOPFLI_TYPE_GZIP    0x1e
 #define ZOPFLI_TYPE_ZLIB    0x2e
