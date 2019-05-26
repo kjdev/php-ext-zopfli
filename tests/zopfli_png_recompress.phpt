@@ -1,11 +1,16 @@
 --TEST--
 Test zopfli_png_recompress() function
+--SKIPIF--
+<?php
+if (!extension_loaded("zopfli")) {
+    die('skip The zopfli extension is not loaded');
+}
+if (!function_exists("zopfli_png_recompress")) {
+    die('skip The zopfli extension is built without zlib support');
+}
+?>
 --FILE--
 <?php
-if (!extension_loaded('zopfli')) {
-    dl('zopfli.' . PHP_SHLIB_SUFFIX);
-}
-
 $origin_file = dirname(__FILE__) . '/php.png';
 $recompress_file = dirname(__FILE__) . '/php-recomp.png';
 
