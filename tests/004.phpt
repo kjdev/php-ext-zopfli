@@ -30,7 +30,7 @@ var_dump(zopfli_uncompress("", 9));
 
 var_dump(zopfli_uncompress($data1));
 var_dump(zopfli_uncompress($data2));
-$data2{4} = 0;
+$data2[4] = 0;
 var_dump(zopfli_uncompress($data2));
 
 echo "Done\n";
