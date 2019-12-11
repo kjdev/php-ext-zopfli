@@ -31,7 +31,7 @@ var_dump(zopfli_inflate("asdf", 100));
 
 var_dump(zopfli_inflate($data1));
 var_dump(zopfli_inflate($data2));
-$data2{4} = 0;
+$data2[4] = 0;
 var_dump(zopfli_inflate($data2));
 
 echo "Done\n";
