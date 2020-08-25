@@ -16,7 +16,7 @@ Documentation for Zopfli can be found at [» https://github.com/google/zopfli](h
 
 ## Configration ##
 
-zopfli.ini:
+php.ini:
 
 ```ini
 extension=zopfli.so
